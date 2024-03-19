@@ -7,7 +7,7 @@ public interface UserService {
 
   UserDto save(UserDto user);
 
-  UserDto update(UserDto user);
+  UserDto update(Long id, UserDto user);
 
   List<UserDto> getAll();
 

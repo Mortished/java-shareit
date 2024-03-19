@@ -40,7 +40,7 @@ public class UserController {
 
   @PatchMapping("/{id}")
   public UserDto update(@PathVariable Long id, @RequestBody UserDto user) {
-    return userService.update(user);
+    return userService.update(id, user);
   }
 
   @DeleteMapping("/{id}")

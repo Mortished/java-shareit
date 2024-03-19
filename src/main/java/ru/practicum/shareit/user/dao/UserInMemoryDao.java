@@ -14,14 +14,12 @@ public class UserInMemoryDao implements UserRepository {
 
   @Override
   public User save(User user) {
-    data.put(user.getId(), user);
-    return user;
+    return data.put(user.getId(), user);
   }
 
   @Override
-  public User update(User user) {
-    data.put(user.getId(), user);
-    return user;
+  public User update(Long id, User user) {
+    return data.put(id, user);
   }
 
   @Override
