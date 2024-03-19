@@ -24,7 +24,6 @@ public class UserServiceImpl implements UserService {
     return user;
   }
 
-
   @Override
   public UserDto update(Long id, UserDto user) {
     User result = userRepository.getById(id);

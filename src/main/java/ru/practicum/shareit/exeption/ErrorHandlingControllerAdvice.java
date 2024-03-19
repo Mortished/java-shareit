@@ -28,4 +28,10 @@ public class ErrorHandlingControllerAdvice {
     return new ApiError(ex.getMessage());
   }
 
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ExceptionHandler(UserNotFoundException.class)
+  public ApiError handleValidationExceptions(UserNotFoundException ex) {
+    return new ApiError(ex.getMessage());
+  }
+
 }
