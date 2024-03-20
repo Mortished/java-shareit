@@ -21,17 +21,18 @@ import ru.practicum.shareit.item.service.ItemService;
 public class ItemController {
 
   private final ItemService itemService;
+  private static final String REQUEST_HEADER_USER_ID = "X-Sharer-User-Id";
 
   @PostMapping
   public ItemDto add(
-      @RequestHeader("X-Sharer-User-Id") long userId,
+      @RequestHeader(REQUEST_HEADER_USER_ID) long userId,
       @Valid @RequestBody ItemDto item) {
     return itemService.add(userId, item);
   }
 
   @PatchMapping("/{itemId}")
   public ItemDto edit(
-      @RequestHeader("X-Sharer-User-Id") long userId,
+      @RequestHeader(REQUEST_HEADER_USER_ID) long userId,
       @PathVariable Long itemId,
       @RequestBody ItemDto item) {
     return itemService.edit(userId, itemId, item);
@@ -43,7 +44,7 @@ public class ItemController {
   }
 
   @GetMapping
-  public List<ItemDto> getUserItems(@RequestHeader("X-Sharer-User-Id") long userId) {
+  public List<ItemDto> getUserItems(@RequestHeader(REQUEST_HEADER_USER_ID) long userId) {
     return itemService.getUserItems(userId);
   }
 

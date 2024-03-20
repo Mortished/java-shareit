@@ -11,8 +11,8 @@ import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.dao.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dao.UserRepository;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.utils.ItemIdGenerator;
 
 @Service
@@ -39,13 +39,13 @@ public class ItemServiceImpl implements ItemService {
     if (!Objects.equals(userId, result.getOwner().getId())) {
       throw new UserNotFoundException(userId.toString());
     }
-    if (item.getName() != null) {
+    if (Objects.nonNull(item.getName())) {
       result.setName(item.getName());
     }
-    if (item.getDescription() != null) {
+    if (Objects.nonNull(item.getDescription())) {
       result.setDescription(item.getDescription());
     }
-    if (item.getAvailable() != null) {
+    if (Objects.nonNull(item.getAvailable())) {
       result.setAvailable(item.getAvailable());
     }
     itemRepository.edit(itemId, result);

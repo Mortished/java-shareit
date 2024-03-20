@@ -1,7 +1,7 @@
 package ru.practicum.shareit.user.dao;
 
 import java.util.List;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.model.User;
 
 public interface UserRepository {
 
