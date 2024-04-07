@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exeption.DuplicateUserEmailException;
 import ru.practicum.shareit.user.UserMapper;
-import ru.practicum.shareit.user.dao.UserRepository;
+import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.utils.UserIdGenerator;
@@ -39,13 +39,13 @@ public class UserServiceImpl implements UserService {
     if (user.getEmail() != null) {
       result.setEmail(user.getEmail());
     }
-    userRepository.update(id, result);
-    return getById(id);
+
+    return UserMapper.toUserDto(userRepository.save(result));
   }
 
   @Override
   public List<UserDto> getAll() {
-    return userRepository.getAll().stream()
+    return userRepository.findAll().stream()
         .map(UserMapper::toUserDto)
         .collect(Collectors.toList());
   }
@@ -70,9 +70,7 @@ public class UserServiceImpl implements UserService {
   }
 
   private boolean isEmailExist(String email) {
-    return userRepository.getAll().stream()
-        .map(User::getEmail)
-        .anyMatch(it -> it.equals(email));
+    return userRepository.existsUserByEmail(email);
   }
 
 }
