@@ -15,3 +15,36 @@ CREATE TABLE IF NOT EXISTS items
     CONSTRAINT fk_items_to_users FOREIGN KEY (user_id) REFERENCES users (id),
     UNIQUE (id)
 );
+
+CREATE TABLE IF NOT EXISTS bookings
+(
+    id         BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    start_date timestamp without time zone,
+    end_date   timestamp without time zone,
+    status     varchar,
+    item_id    bigint,
+    booker_id  bigint,
+    CONSTRAINT fk_bookings_to_users FOREIGN KEY (booker_id) REFERENCES users (id),
+    CONSTRAINT fk_bookings_to_items FOREIGN KEY (item_id) REFERENCES items (id),
+    UNIQUE (id)
+);
+
+CREATE TABLE IF NOT EXISTS requests
+(
+    id           BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    description  varchar(255),
+    requestor_id bigint,
+    CONSTRAINT fk_requests_to_users FOREIGN KEY (requestor_id) REFERENCES users (id),
+    UNIQUE (id)
+);
+
+CREATE TABLE IF NOT EXISTS comments
+(
+    id        BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    text      varchar(255),
+    item_id   bigint,
+    author_id bigint,
+    CONSTRAINT fk_comments_to_items FOREIGN KEY (item_id) REFERENCES items (id),
+    CONSTRAINT fk_comments_to_users FOREIGN KEY (author_id) REFERENCES users (id),
+    UNIQUE (id)
+);

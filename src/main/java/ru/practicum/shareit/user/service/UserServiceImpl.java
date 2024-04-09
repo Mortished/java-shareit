@@ -7,9 +7,8 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exeption.DuplicateUserEmailException;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.utils.UserIdGenerator;
 
 @Service
 @RequiredArgsConstructor
@@ -18,14 +17,13 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
 
   @Override
-  public UserDto save(UserDto user) {
+  public UserDTO save(UserDTO user) {
     validateUser(user);
-    userRepository.save(UserMapper.toUser(user));
-    return user;
+    return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(user)));
   }
 
   @Override
-  public UserDto update(Long id, UserDto user) {
+  public UserDTO update(Long id, UserDTO user) {
     User result = userRepository.getById(id);
     if (user.getEmail() != null && user.getEmail().equals(result.getEmail())) {
       return getById(id);
@@ -44,14 +42,14 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public List<UserDto> getAll() {
+  public List<UserDTO> getAll() {
     return userRepository.findAll().stream()
         .map(UserMapper::toUserDto)
         .collect(Collectors.toList());
   }
 
   @Override
-  public UserDto getById(Long id) {
+  public UserDTO getById(Long id) {
     return UserMapper.toUserDto(userRepository.getById(id));
   }
 
@@ -60,12 +58,9 @@ public class UserServiceImpl implements UserService {
     userRepository.deleteById(id);
   }
 
-  private void validateUser(UserDto user) {
+  private void validateUser(UserDTO user) {
     if (isEmailExist(user.getEmail())) {
       throw new DuplicateUserEmailException(user.getEmail());
-    }
-    if (user.getId() == null) {
-      user.setId(UserIdGenerator.getInstance().getId());
     }
   }
 

@@ -10,11 +10,10 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exeption.UserNotFoundException;
 import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.ItemRepository;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.utils.ItemIdGenerator;
 
 @Service
 @RequiredArgsConstructor
@@ -24,19 +23,17 @@ public class ItemServiceImpl implements ItemService {
   private final UserRepository userRepository;
 
   @Override
-  public ItemDto add(Long userId, ItemDto item) {
+  public ItemDTO add(Long userId, ItemDTO item) {
     Optional<User> result = userRepository.findById(userId);
     if (result.isEmpty()) {
       throw new UserNotFoundException(userId.toString());
     }
     User user = result.get();
-    item.setId(ItemIdGenerator.getInstance().getId());
-    itemRepository.save(ItemMapper.toItem(item, user));
-    return item;
+    return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItem(item, user)));
   }
 
   @Override
-  public ItemDto edit(Long userId, Long itemId, ItemDto item) {
+  public ItemDTO edit(Long userId, Long itemId, ItemDTO item) {
     Item result = itemRepository.getById(itemId);
     if (!Objects.equals(userId, result.getOwner().getId())) {
       throw new UserNotFoundException(userId.toString());
@@ -55,19 +52,19 @@ public class ItemServiceImpl implements ItemService {
   }
 
   @Override
-  public ItemDto getById(Long id) {
+  public ItemDTO getById(Long id) {
     return ItemMapper.toItemDto(itemRepository.getById(id));
   }
 
   @Override
-  public List<ItemDto> getUserItems(Long userId) {
+  public List<ItemDTO> getUserItems(Long userId) {
     return itemRepository.findItemsByOwnerId(userId).stream()
         .map(ItemMapper::toItemDto)
         .collect(Collectors.toList());
   }
 
   @Override
-  public List<ItemDto> search(String text) {
+  public List<ItemDTO> search(String text) {
     if (text.isEmpty()) {
       return Collections.emptyList();
     }

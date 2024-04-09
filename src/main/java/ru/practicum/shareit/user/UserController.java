@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.service.UserService;
 
 @RestController
@@ -24,22 +24,22 @@ public class UserController {
   private final UserService userService;
 
   @GetMapping
-  public List<UserDto> getAll() {
+  public List<UserDTO> getAll() {
     return userService.getAll();
   }
 
   @GetMapping("/{id}")
-  public UserDto getById(@PathVariable Long id) {
+  public UserDTO getById(@PathVariable Long id) {
     return userService.getById(id);
   }
 
   @PostMapping
-  public UserDto save(@Valid @RequestBody UserDto user) {
+  public UserDTO save(@Valid @RequestBody UserDTO user) {
     return userService.save(user);
   }
 
   @PatchMapping("/{id}")
-  public UserDto update(@PathVariable Long id, @RequestBody UserDto user) {
+  public UserDTO update(@PathVariable Long id, @RequestBody UserDTO user) {
     return userService.update(id, user);
   }
 
