@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +36,8 @@ public class BookingServiceImpl implements BookingService {
   private final BookingRepository bookingRepository;
   private final UserRepository userRepository;
   private final ItemRepository itemRepository;
+  @Autowired
+  private EntityManager entityManager;
 
   @Override
   public BookingDTO book(Long bookerId, BookingRequestDTO bookingParam) {
@@ -62,7 +66,7 @@ public class BookingServiceImpl implements BookingService {
 
 
   @Override
-  @Transactional(propagation = Propagation.NESTED)
+  @Transactional
   public BookingDTO updateBooking(Long ownerId, Long bookingId, Boolean isApproved) {
     Optional<User> user = userRepository.findById(ownerId);
     if (user.isEmpty()) {
@@ -88,8 +92,9 @@ public class BookingServiceImpl implements BookingService {
     } else {
       bookingRepository.updateBookingStatusById(bookingId, BookingStatus.REJECTED.name());
     }
-
-    return BookingMapper.toBookingDTO(bookingRepository.findById(bookingId).get());
+    var result = bookingRepository.findById(bookingId).get();
+    entityManager.refresh(result);
+    return BookingMapper.toBookingDTO(result);
   }
 
   @Override
@@ -153,9 +158,11 @@ public class BookingServiceImpl implements BookingService {
       case CURRENT:
         return bookingRepository.findCurrentBookingByOwnerId(ownerId);
       case PAST:
-        return bookingRepository.findBookingsByItem_OwnerIdAndEndBeforeOrderByStartDesc(ownerId, LocalDateTime.now());
+        return bookingRepository.findBookingsByItem_OwnerIdAndEndBeforeOrderByStartDesc(ownerId,
+            LocalDateTime.now());
       case FUTURE:
-        return bookingRepository.findBookingsByItem_OwnerIdAndStartAfterOrderByStartDesc(ownerId, LocalDateTime.now());
+        return bookingRepository.findBookingsByItem_OwnerIdAndStartAfterOrderByStartDesc(ownerId,
+            LocalDateTime.now());
       default:
         throw new RequestStatusException(state.name());
     }

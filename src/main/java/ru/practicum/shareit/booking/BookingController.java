@@ -39,9 +39,7 @@ public class BookingController {
       @PathVariable Long bookingId,
       @RequestParam Boolean approved
   ) {
-    bookingService.updateBooking(ownerId, bookingId, approved);
-    return getById(ownerId, bookingId);
-
+    return bookingService.updateBooking(ownerId, bookingId, approved);
   }
 
   @GetMapping("/{bookingId}")
