@@ -1,10 +1,12 @@
 package ru.practicum.shareit.user.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exeption.DuplicateUserEmailException;
+import ru.practicum.shareit.exeption.UserNotFoundException;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.dto.UserDTO;
@@ -18,18 +20,26 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserDTO save(UserDTO user) {
-    validateUser(user);
-    return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(user)));
+    User result = null;
+    try {
+      result = userRepository.save(UserMapper.toUser(user));
+    } catch (Exception e) {
+      throw new DuplicateUserEmailException();
+    }
+    return UserMapper.toUserDto(result);
   }
 
   @Override
   public UserDTO update(Long id, UserDTO user) {
-    User result = userRepository.getById(id);
+    Optional<User> userOptional = userRepository.findById(id);
+    if (userOptional.isEmpty()) {
+      throw new UserNotFoundException(id.toString());
+    }
+    User result = userOptional.get();
     if (user.getEmail() != null && user.getEmail().equals(result.getEmail())) {
       return getById(id);
     }
     user.setId(id);
-    validateUser(user);
 
     if (user.getName() != null) {
       result.setName(user.getName());
@@ -50,22 +60,16 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserDTO getById(Long id) {
-    return UserMapper.toUserDto(userRepository.getById(id));
+    Optional<User> user = userRepository.findById(id);
+    if (user.isEmpty()) {
+      throw new UserNotFoundException(id.toString());
+    }
+    return UserMapper.toUserDto(user.get());
   }
 
   @Override
   public void deleteById(Long id) {
     userRepository.deleteById(id);
-  }
-
-  private void validateUser(UserDTO user) {
-    if (isEmailExist(user.getEmail())) {
-      throw new DuplicateUserEmailException(user.getEmail());
-    }
-  }
-
-  private boolean isEmailExist(String email) {
-    return userRepository.existsUserByEmail(email);
   }
 
 }
