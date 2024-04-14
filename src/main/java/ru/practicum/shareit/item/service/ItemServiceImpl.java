@@ -12,10 +12,11 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.exeption.BookingNotFoundException;
 import ru.practicum.shareit.exeption.ItemNotFoundException;
 import ru.practicum.shareit.exeption.UserNotFoundException;
+import ru.practicum.shareit.exeption.ValidateException;
 import ru.practicum.shareit.item.dto.CommentDTO;
+import ru.practicum.shareit.item.dto.CommentRequestDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemFullDTO;
 import ru.practicum.shareit.item.mapper.CommentMapper;
@@ -101,7 +102,7 @@ public class ItemServiceImpl implements ItemService {
   }
 
   @Override
-  public CommentDTO comment(Long userId, Long itemId, String text) {
+  public CommentDTO comment(Long userId, Long itemId, CommentRequestDTO text) {
     Optional<User> user = userRepository.findById(userId);
     if (user.isEmpty()) {
       throw new UserNotFoundException(userId.toString());
@@ -111,10 +112,10 @@ public class ItemServiceImpl implements ItemService {
       throw new ItemNotFoundException(itemId.toString());
     }
     if (!bookingRepository.existsBookingByBookerIdAndStatus(userId, BookingStatus.APPROVED.name())) {
-      throw new BookingNotFoundException(userId.toString());
+      throw new ValidateException();
     }
     Comment comment = commentRepository.save(Comment.builder()
-        .text(text)
+        .text(text.getText())
         .item(item.get())
         .user(user.get())
         .build());
@@ -123,7 +124,7 @@ public class ItemServiceImpl implements ItemService {
 
   private Booking getNextBooking(List<Booking> bookingList) {
     return bookingList.stream()
-        .filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED.name()))
+        //.filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED.name()))
         .sorted(Comparator.comparing(Booking::getEnd))
         .filter(booking -> booking.getEnd().isAfter(LocalDateTime.now()))
         .findFirst()
@@ -132,7 +133,7 @@ public class ItemServiceImpl implements ItemService {
 
   private Booking getLastBooking(List<Booking> bookingList) {
     return bookingList.stream()
-        .filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED.name()))
+        //.filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED.name()))
         .sorted((o1, o2) -> o1.getEnd().isAfter(o2.getEnd()) ? 1 : -1)
         .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
         .findFirst()

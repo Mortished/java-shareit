@@ -5,7 +5,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.shareit.utils.BaseDTO;
 
 @Data
 @Builder
@@ -18,8 +17,8 @@ public class ItemFullDTO {
   private String description;
   @NotNull
   private Boolean available;
-  private BaseDTO lastBooking;
-  private BaseDTO nextBooking;
+  private ItemBookingDTO lastBooking;
+  private ItemBookingDTO nextBooking;
   private List<CommentDTO> comments;
 
 }

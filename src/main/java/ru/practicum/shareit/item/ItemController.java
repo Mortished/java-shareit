@@ -2,7 +2,6 @@ package ru.practicum.shareit.item;
 
 import java.util.List;
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.item.dto.CommentDTO;
+import ru.practicum.shareit.item.dto.CommentRequestDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemFullDTO;
 import ru.practicum.shareit.item.service.ItemService;
@@ -60,7 +60,7 @@ public class ItemController {
   public CommentDTO comment(
       @RequestHeader(REQUEST_HEADER_USER_ID) long userId,
       @PathVariable Long itemId,
-      @RequestBody @NotEmpty @Valid String text) {
+      @RequestBody @Valid CommentRequestDTO text) {
     return itemService.comment(userId, itemId, text);
   }
 

@@ -1,10 +1,12 @@
 package ru.practicum.shareit.booking.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -27,7 +29,6 @@ import ru.practicum.shareit.user.model.User;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class BookingServiceImpl implements BookingService {
 
   private final BookingRepository bookingRepository;
@@ -61,6 +62,7 @@ public class BookingServiceImpl implements BookingService {
 
 
   @Override
+  @Transactional(propagation = Propagation.NESTED)
   public BookingDTO updateBooking(Long ownerId, Long bookingId, Boolean isApproved) {
     Optional<User> user = userRepository.findById(ownerId);
     if (user.isEmpty()) {
@@ -141,19 +143,19 @@ public class BookingServiceImpl implements BookingService {
   private List<Booking> findBookingsByOwnerIdAndStatus(Long ownerId, RequestBookingStatus state) {
     switch (state) {
       case ALL:
-        return bookingRepository.findBookingByOwnerId(ownerId);
+        return bookingRepository.findBookingsByItem_OwnerIdOrderByStartDesc(ownerId);
       case WAITING:
-        return bookingRepository.findBookingByOwnerIdAndStatus(ownerId,
+        return bookingRepository.findBookingsByItem_OwnerIdAndStatusOrderByStartDesc(ownerId,
             BookingStatus.WAITING.name());
       case REJECTED:
-        return bookingRepository.findBookingByOwnerIdAndStatus(ownerId,
+        return bookingRepository.findBookingsByItem_OwnerIdAndStatusOrderByStartDesc(ownerId,
             BookingStatus.REJECTED.name());
       case CURRENT:
         return bookingRepository.findCurrentBookingByOwnerId(ownerId);
       case PAST:
-        return bookingRepository.findPastBookingByOwnerId(ownerId);
+        return bookingRepository.findBookingsByItem_OwnerIdAndEndBeforeOrderByStartDesc(ownerId, LocalDateTime.now());
       case FUTURE:
-        return bookingRepository.findFutureBookingByOwnerId(ownerId);
+        return bookingRepository.findBookingsByItem_OwnerIdAndStartAfterOrderByStartDesc(ownerId, LocalDateTime.now());
       default:
         throw new RequestStatusException(state.name());
     }

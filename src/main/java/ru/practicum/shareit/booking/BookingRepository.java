@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -21,56 +22,33 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
       + "order by b.start DESC")
   List<Booking> findCurrentBookingByBookerId(Long bookerId);
 
-  @Query("select b from Booking b where b.booker.id = ?1 and current_timestamp > b.end "
+  @Query("select b from Booking b where b.booker.id = ?1 "
+      + "and current_timestamp > b.end "
       + "order by b.start DESC")
   List<Booking> findPastBookingByBookerId(Long bookerId);
 
-  @Query("select b from Booking b where b.booker.id = ?1 and current_timestamp < b.start "
+  @Query("select b from Booking b where b.booker.id = ?1 "
+      + "and current_timestamp < b.start "
       + "order by b.start DESC")
   List<Booking> findFutureBookingByBookerId(Long bookerId);
 
+  @Query("select (count(b) > 0) from Booking b where b.booker.id = ?1 and b.status = ?2 and b.end < current_timestamp")
   boolean existsBookingByBookerIdAndStatus(Long bookerId, String status);
 
   List<Booking> findBookingsByItemId(Long itemId);
 
-  @Query(value = "select b.*\n"
-      + "from bookings b\n"
-      + "         join items i on b.item_id = i.id\n"
-      + "where i.user_id =?\n"
-      + "order by b.start_date desc;", nativeQuery = true)
-  List<Booking> findBookingByOwnerId(Long bookerId);
+  List<Booking> findBookingsByItem_OwnerIdAndStatusOrderByStartDesc(Long ownerId, String status);
 
-  @Query(value = "select b.*\n"
-      + "from bookings b\n"
-      + "         join items i on b.item_id = i.id\n"
-      + "where i.user_id =?\n"
-      + "and b.status = ?2 "
-      + "order by b.start_date desc;", nativeQuery = true)
-  List<Booking> findBookingByOwnerIdAndStatus(Long bookerId, String status);
+  List<Booking> findBookingsByItem_OwnerIdOrderByStartDesc(Long ownerId);
 
-  @Query(value = "select b.*\n"
-      + "from bookings b\n"
-      + "         join items i on b.item_id = i.id\n"
-      + "where i.user_id =?\n"
-      + "and current_timestamp > b.end_date "
-      + "order by b.start_date desc;", nativeQuery = true)
-  List<Booking> findPastBookingByOwnerId(Long bookerId);
+  List<Booking> findBookingsByItem_OwnerIdAndStartAfterOrderByStartDesc(Long ownerId,
+      LocalDateTime start);
 
-  @Query(value = "select b.*\n"
-      + "from bookings b\n"
-      + "         join items i on b.item_id = i.id\n"
-      + "where i.user_id =?\n"
-      + "and current_timestamp between b.start_date and b.end_date  "
-      + "order by b.start_date desc;", nativeQuery = true)
-  List<Booking> findCurrentBookingByOwnerId(Long bookerId);
+  List<Booking> findBookingsByItem_OwnerIdAndEndBeforeOrderByStartDesc(Long ownerId,
+      LocalDateTime end);
 
-  @Query(value = "select b.*\n"
-      + "from bookings b\n"
-      + "         join items i on b.item_id = i.id\n"
-      + "where i.user_id =?\n"
-      + "and b.start_date > current_timestamp "
-      + "order by b.start_date desc;", nativeQuery = true)
-  List<Booking> findFutureBookingByOwnerId(Long bookerId);
-
-
+  @Query("select b from Booking b where b.item.owner.id = ?1 "
+      + "and current_timestamp between b.start and b.end "
+      + "order by b.start DESC")
+  List<Booking> findCurrentBookingByOwnerId(Long ownerId);
 }
