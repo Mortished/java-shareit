@@ -16,14 +16,14 @@ import ru.practicum.shareit.exeption.BookingNotFoundException;
 import ru.practicum.shareit.exeption.ItemNotFoundException;
 import ru.practicum.shareit.exeption.UserNotFoundException;
 import ru.practicum.shareit.item.dto.CommentDTO;
+import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemFullDTO;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.item.dto.ItemDTO;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
@@ -110,7 +110,7 @@ public class ItemServiceImpl implements ItemService {
     if (item.isEmpty()) {
       throw new ItemNotFoundException(itemId.toString());
     }
-    if (!bookingRepository.existsBookingByBookerAndStatus(userId, BookingStatus.APPROVED.name())) {
+    if (!bookingRepository.existsBookingByBookerIdAndStatus(userId, BookingStatus.APPROVED.name())) {
       throw new BookingNotFoundException(userId.toString());
     }
     Comment comment = commentRepository.save(Comment.builder()

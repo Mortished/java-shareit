@@ -40,6 +40,7 @@ public class BookingController {
       @RequestParam Boolean approved
   ) {
     return bookingService.updateBooking(ownerId, bookingId, approved);
+
   }
 
   @GetMapping("/{bookingId}")
@@ -53,17 +54,17 @@ public class BookingController {
   @GetMapping
   public List<BookingDTO> getUserBookings(
       @RequestHeader(REQUEST_HEADER_USER_ID) Long userId,
-      @RequestParam(defaultValue = "ALL") RequestBookingStatus status
+      @RequestParam(defaultValue = "ALL") RequestBookingStatus state
   ) {
-    return bookingService.getBookingsByUser(userId, status);
+    return bookingService.getBookingsByUser(userId, state);
   }
 
   @GetMapping("/owner")
   public List<BookingDTO> getUserItemBookings(
       @RequestHeader(REQUEST_HEADER_USER_ID) Long userId,
-      @RequestParam(defaultValue = "ALL") RequestBookingStatus status
+      @RequestParam(defaultValue = "ALL") RequestBookingStatus state
   ) {
-    return bookingService.getBookingStatusByOwner(userId, status);
+    return bookingService.getBookingStatusByOwner(userId, state);
   }
 
 }
