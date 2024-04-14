@@ -44,6 +44,6 @@ public class Booking {
   @JoinColumn(name = "booker_id", nullable = false)
   private User booker;
 
-  private BookingStatus status;
+  private String status;
 
 }

@@ -9,7 +9,7 @@ import ru.practicum.shareit.utils.BaseDTO;
 
 @Data
 @Builder
-public class ItemDTO {
+public class ItemFullDTO {
 
   private Long id;
   @NotEmpty
@@ -18,5 +18,8 @@ public class ItemDTO {
   private String description;
   @NotNull
   private Boolean available;
+  private BaseDTO lastBooking;
+  private BaseDTO nextBooking;
+  private List<CommentDTO> comments;
 
 }

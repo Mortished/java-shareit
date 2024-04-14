@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS bookings
     id         BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     start_date timestamp without time zone,
     end_date   timestamp without time zone,
-    status     varchar,
+    status     varchar(10),
     item_id    bigint,
     booker_id  bigint,
     CONSTRAINT fk_bookings_to_users FOREIGN KEY (booker_id) REFERENCES users (id),
@@ -44,7 +44,8 @@ CREATE TABLE IF NOT EXISTS comments
     text      varchar(255),
     item_id   bigint,
     author_id bigint,
-    CONSTRAINT fk_comments_to_items FOREIGN KEY (item_id) REFERENCES items (id),
+    created   timestamp without time zone,
+        CONSTRAINT fk_comments_to_items FOREIGN KEY (item_id) REFERENCES items (id),
     CONSTRAINT fk_comments_to_users FOREIGN KEY (author_id) REFERENCES users (id),
     UNIQUE (id)
 );

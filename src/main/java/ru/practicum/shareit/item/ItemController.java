@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import java.util.List;
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -12,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
+import ru.practicum.shareit.item.dto.ItemFullDTO;
 import ru.practicum.shareit.item.service.ItemService;
 
 @RestController
@@ -39,18 +42,26 @@ public class ItemController {
   }
 
   @GetMapping("/{itemId}")
-  public ItemDTO getById(@PathVariable Long itemId) {
+  public ItemFullDTO getById(@PathVariable Long itemId) {
     return itemService.getById(itemId);
   }
 
   @GetMapping
-  public List<ItemDTO> getUserItems(@RequestHeader(REQUEST_HEADER_USER_ID) long userId) {
+  public List<ItemFullDTO> getUserItems(@RequestHeader(REQUEST_HEADER_USER_ID) long userId) {
     return itemService.getUserItems(userId);
   }
 
   @GetMapping("/search")
   public List<ItemDTO> search(@RequestParam String text) {
     return itemService.search(text);
+  }
+
+  @PostMapping("/{itemId}/comment")
+  public CommentDTO comment(
+      @RequestHeader(REQUEST_HEADER_USER_ID) long userId,
+      @PathVariable Long itemId,
+      @RequestBody @NotEmpty @Valid String text) {
+    return itemService.comment(userId, itemId, text);
   }
 
 }
