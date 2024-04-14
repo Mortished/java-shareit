@@ -42,8 +42,10 @@ public class ItemController {
   }
 
   @GetMapping("/{itemId}")
-  public ItemFullDTO getById(@PathVariable Long itemId) {
-    return itemService.getById(itemId);
+  public ItemFullDTO getById(
+      @RequestHeader(REQUEST_HEADER_USER_ID) long userId,
+      @PathVariable Long itemId) {
+    return itemService.getById(userId, itemId);
   }
 
   @GetMapping

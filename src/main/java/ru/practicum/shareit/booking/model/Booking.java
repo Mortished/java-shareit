@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Transient;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -44,6 +45,7 @@ public class Booking {
   @JoinColumn(name = "booker_id", nullable = false)
   private User booker;
 
+  @Transient
   private String status;
 
 }

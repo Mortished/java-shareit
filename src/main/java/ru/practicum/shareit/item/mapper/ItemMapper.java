@@ -33,7 +33,7 @@ public class ItemMapper {
             .build() : null)
         .nextBooking(nextBooking != null ? ItemBookingDTO.builder()
             .id(nextBooking.getId())
-            .id(nextBooking.getBooker().getId())
+            .bookerId(nextBooking.getBooker().getId())
             .build() : null)
         .comments(comments)
         .build();

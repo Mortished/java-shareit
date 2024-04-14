@@ -67,18 +67,28 @@ public class ItemServiceImpl implements ItemService {
   }
 
   @Override
-  public ItemFullDTO getById(Long id) {
+  public ItemFullDTO getById(Long userId, Long id) {
     Optional<Item> item = itemRepository.findById(id);
     if (item.isEmpty()) {
       throw new ItemNotFoundException(id.toString());
     }
     List<Booking> bookingList = bookingRepository.findBookingsByItemId(item.get().getId());
+    Booking lastBooking = null;
+    Booking nextBooking = null;
+    if (bookingList.size() == 1) {
+      lastBooking = getNextBooking(bookingList);
+    } else if (bookingList.stream().map(Booking::getBooker)
+        .map(User::getId)
+        .noneMatch(it -> it.equals(userId))
+    ) {
+      lastBooking = getLastBooking(bookingList);
+      nextBooking = getNextBooking(bookingList);
+
+    }
     List<Comment> comments = commentRepository.findAllByItemId(item.get().getId());
     List<CommentDTO> commentsDTO = comments.stream()
         .map(CommentMapper::toCommentDTO)
         .collect(Collectors.toList());
-    Booking lastBooking = getLastBooking(bookingList);
-    Booking nextBooking = getNextBooking(bookingList);
     return ItemMapper.toItemFullDTO(item.get(), commentsDTO, lastBooking, nextBooking);
   }
 
@@ -86,7 +96,8 @@ public class ItemServiceImpl implements ItemService {
   public List<ItemFullDTO> getUserItems(Long userId) {
     List<Item> items = itemRepository.findItemsByOwnerId(userId);
     return items.stream()
-        .map(item -> getById(item.getId()))
+        .map(item -> getById(userId, item.getId()))
+        .sorted(Comparator.comparing(ItemFullDTO::getId))
         .collect(Collectors.toList());
   }
 
@@ -111,7 +122,8 @@ public class ItemServiceImpl implements ItemService {
     if (item.isEmpty()) {
       throw new ItemNotFoundException(itemId.toString());
     }
-    if (!bookingRepository.existsBookingByBookerIdAndStatus(userId, BookingStatus.APPROVED.name())) {
+    if (!bookingRepository.existsBookingByBookerIdAndStatus(userId,
+        BookingStatus.APPROVED.name())) {
       throw new ValidateException();
     }
     Comment comment = commentRepository.save(Comment.builder()
@@ -124,7 +136,7 @@ public class ItemServiceImpl implements ItemService {
 
   private Booking getNextBooking(List<Booking> bookingList) {
     return bookingList.stream()
-        //.filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED.name()))
+        .filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED.name()))
         .sorted(Comparator.comparing(Booking::getEnd))
         .filter(booking -> booking.getEnd().isAfter(LocalDateTime.now()))
         .findFirst()
@@ -133,10 +145,9 @@ public class ItemServiceImpl implements ItemService {
 
   private Booking getLastBooking(List<Booking> bookingList) {
     return bookingList.stream()
-        //.filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED.name()))
-        .sorted((o1, o2) -> o1.getEnd().isAfter(o2.getEnd()) ? 1 : -1)
+        .filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED.name()))
         .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
-        .findFirst()
+        .max(Comparator.comparing(Booking::getStart))
         .orElse(null);
   }
 
