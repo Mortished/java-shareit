@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user.service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,11 +30,9 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserDTO update(Long id, UserDTO user) {
-    Optional<User> userOptional = userRepository.findById(id);
-    if (userOptional.isEmpty()) {
-      throw new UserNotFoundException(id.toString());
-    }
-    User result = userOptional.get();
+    User result = userRepository.findById(id)
+        .orElseThrow(() -> new UserNotFoundException(id.toString()));
+
     if (user.getEmail() != null && user.getEmail().equals(result.getEmail())) {
       return getById(id);
     }
@@ -60,11 +57,10 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserDTO getById(Long id) {
-    Optional<User> user = userRepository.findById(id);
-    if (user.isEmpty()) {
-      throw new UserNotFoundException(id.toString());
-    }
-    return UserMapper.toUserDto(user.get());
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new UserNotFoundException(id.toString()));
+
+    return UserMapper.toUserDto(user);
   }
 
   @Override

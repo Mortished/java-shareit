@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -39,11 +38,9 @@ public class ItemServiceImpl implements ItemService {
 
   @Override
   public ItemDTO add(Long userId, ItemDTO item) {
-    Optional<User> result = userRepository.findById(userId);
-    if (result.isEmpty()) {
-      throw new UserNotFoundException(userId.toString());
-    }
-    User user = result.get();
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new UserNotFoundException(userId.toString()));
+
     return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItem(item, user)));
   }
 
@@ -68,11 +65,10 @@ public class ItemServiceImpl implements ItemService {
 
   @Override
   public ItemFullDTO getById(Long userId, Long id) {
-    Optional<Item> item = itemRepository.findById(id);
-    if (item.isEmpty()) {
-      throw new ItemNotFoundException(id.toString());
-    }
-    List<Booking> bookingList = bookingRepository.findBookingsByItemId(item.get().getId());
+    Item item = itemRepository.findById(id)
+        .orElseThrow(() -> new ItemNotFoundException(id.toString()));
+
+    List<Booking> bookingList = bookingRepository.findBookingsByItemId(item.getId());
     Booking lastBooking = null;
     Booking nextBooking = null;
     if (bookingList.size() == 1) {
@@ -85,11 +81,11 @@ public class ItemServiceImpl implements ItemService {
       nextBooking = getNextBooking(bookingList);
 
     }
-    List<Comment> comments = commentRepository.findAllByItemId(item.get().getId());
+    List<Comment> comments = commentRepository.findAllByItemId(item.getId());
     List<CommentDTO> commentsDTO = comments.stream()
         .map(CommentMapper::toCommentDTO)
         .collect(Collectors.toList());
-    return ItemMapper.toItemFullDTO(item.get(), commentsDTO, lastBooking, nextBooking);
+    return ItemMapper.toItemFullDTO(item, commentsDTO, lastBooking, nextBooking);
   }
 
   @Override
@@ -114,22 +110,20 @@ public class ItemServiceImpl implements ItemService {
 
   @Override
   public CommentDTO comment(Long userId, Long itemId, CommentRequestDTO text) {
-    Optional<User> user = userRepository.findById(userId);
-    if (user.isEmpty()) {
-      throw new UserNotFoundException(userId.toString());
-    }
-    Optional<Item> item = itemRepository.findById(itemId);
-    if (item.isEmpty()) {
-      throw new ItemNotFoundException(itemId.toString());
-    }
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new UserNotFoundException(userId.toString()));
+
+    Item item = itemRepository.findById(itemId)
+        .orElseThrow(() -> new ItemNotFoundException(itemId.toString()));
+
     if (!bookingRepository.existsBookingByBookerIdAndStatus(userId,
         BookingStatus.APPROVED.name())) {
       throw new ValidateException();
     }
     Comment comment = commentRepository.save(Comment.builder()
         .text(text.getText())
-        .item(item.get())
-        .user(user.get())
+        .item(item)
+        .user(user)
         .build());
     return CommentMapper.toCommentDTO(comment);
   }

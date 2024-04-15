@@ -2,11 +2,9 @@ package ru.practicum.shareit.booking.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -35,21 +33,18 @@ public class BookingServiceImpl implements BookingService {
   private final BookingRepository bookingRepository;
   private final UserRepository userRepository;
   private final ItemRepository itemRepository;
-  @Autowired
-  private EntityManager entityManager;
+  private final EntityManager entityManager;
 
   @Override
   public BookingDTO book(Long bookerId, BookingRequestDTO bookingParam) {
     validateDate(bookingParam);
-    Optional<User> user = userRepository.findById(bookerId);
-    if (user.isEmpty()) {
-      throw new UserNotFoundException(bookerId.toString());
-    }
-    Optional<Item> item = itemRepository.findById(bookingParam.getItemId());
-    if (item.isEmpty()) {
-      throw new ItemNotFoundException(bookingParam.getItemId().toString());
-    }
-    if (bookerId.equals(item.get().getOwner().getId())) {
+    User user = userRepository.findById(bookerId)
+        .orElseThrow(() -> new UserNotFoundException(bookerId.toString()));
+
+    Item item = itemRepository.findById(bookingParam.getItemId())
+        .orElseThrow(() -> new ItemNotFoundException(bookingParam.getItemId().toString()));
+
+    if (bookerId.equals(item.getOwner().getId())) {
       throw new UserNotFoundException(bookerId.toString());
     }
     if (!itemRepository.isItemAvalible(bookingParam.getItemId())) {
@@ -59,7 +54,7 @@ public class BookingServiceImpl implements BookingService {
     bookingParam.setStatus(BookingStatus.WAITING.name());
 
     Booking result = bookingRepository.save(
-        BookingMapper.toBooking(bookingParam, user.get(), item.get()));
+        BookingMapper.toBooking(bookingParam, user, item));
     return BookingMapper.toBookingDTO(result);
   }
 
@@ -67,62 +62,57 @@ public class BookingServiceImpl implements BookingService {
   @Override
   @Transactional
   public BookingDTO updateBooking(Long ownerId, Long bookingId, Boolean isApproved) {
-    Optional<User> user = userRepository.findById(ownerId);
-    if (user.isEmpty()) {
-      throw new UserNotFoundException(ownerId.toString());
-    }
-    Optional<Booking> booking = bookingRepository.findById(bookingId);
-    if (booking.isEmpty()) {
-      throw new BookingNotFoundException(bookingId.toString());
-    }
-    if (BookingStatus.valueOf(booking.get().getStatus()).equals(BookingStatus.APPROVED)) {
+    User user = userRepository.findById(ownerId)
+        .orElseThrow(() -> new UserNotFoundException(ownerId.toString()));
+
+    Booking booking = bookingRepository.findById(bookingId)
+        .orElseThrow(() -> new BookingNotFoundException(bookingId.toString()));
+
+    if (BookingStatus.valueOf(booking.getStatus()).equals(BookingStatus.APPROVED)) {
       throw new ValidateException();
     }
-    Optional<Item> item = itemRepository.findById(booking.get().getItem().getId());
-    if (item.isEmpty()) {
-      throw new ItemNotFoundException(booking.get().getItem().getId().toString());
-    }
-    if (!ownerId.equals(item.get().getOwner().getId())) {
+    Item item = itemRepository.findById(booking.getItem().getId())
+        .orElseThrow(() -> new ItemNotFoundException(booking.getItem().getId().toString()));
+
+    if (!ownerId.equals(item.getOwner().getId())) {
       throw new UserNotFoundException(ownerId.toString());
     }
     if (isApproved) {
-      itemRepository.updateItemAvailableById(item.get().getId(), isApproved);
+      itemRepository.updateItemAvailableById(item.getId(), isApproved);
       bookingRepository.updateBookingStatusById(bookingId, BookingStatus.APPROVED.name());
     } else {
       bookingRepository.updateBookingStatusById(bookingId, BookingStatus.REJECTED.name());
     }
-    var result = bookingRepository.findById(bookingId).get();
+    var result = bookingRepository.findById(bookingId)
+        .orElseThrow(() -> new BookingNotFoundException(bookingId.toString()));
+
     entityManager.refresh(result);
     return BookingMapper.toBookingDTO(result);
   }
 
   @Override
   public BookingDTO getBooking(Long userId, Long bookingId) {
-    Optional<User> user = userRepository.findById(userId);
-    if (user.isEmpty()) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new UserNotFoundException(userId.toString()));
+
+    Booking booking = bookingRepository.findById(bookingId)
+        .orElseThrow(() -> new BookingNotFoundException(bookingId.toString()));
+
+    Item item = itemRepository.findById(booking.getItem().getId())
+        .orElseThrow(() -> new ItemNotFoundException(booking.getItem().getId().toString()));
+
+    if (!userId.equals(item.getOwner().getId())
+        && !userId.equals(booking.getBooker().getId())) {
       throw new UserNotFoundException(userId.toString());
     }
-    Optional<Booking> booking = bookingRepository.findById(bookingId);
-    if (booking.isEmpty()) {
-      throw new BookingNotFoundException(bookingId.toString());
-    }
-    Optional<Item> item = itemRepository.findById(booking.get().getItem().getId());
-    if (item.isEmpty()) {
-      throw new ItemNotFoundException(booking.get().getItem().getId().toString());
-    }
-    if (!userId.equals(item.get().getOwner().getId())
-        && !userId.equals(booking.get().getBooker().getId())) {
-      throw new UserNotFoundException(userId.toString());
-    }
-    return BookingMapper.toBookingDTO(booking.get());
+    return BookingMapper.toBookingDTO(booking);
   }
 
   @Override
   public List<BookingDTO> getBookingsByUser(Long bookerId, RequestBookingStatus state) {
-    Optional<User> user = userRepository.findById(bookerId);
-    if (user.isEmpty()) {
-      throw new UserNotFoundException(bookerId.toString());
-    }
+    User user = userRepository.findById(bookerId)
+        .orElseThrow(() -> new UserNotFoundException(bookerId.toString()));
+
     List<Booking> result = findBookingsByUserIdAndStatus(bookerId, state);
     return result.stream()
         .map(BookingMapper::toBookingDTO)
@@ -131,10 +121,9 @@ public class BookingServiceImpl implements BookingService {
 
   @Override
   public List<BookingDTO> getBookingStatusByOwner(Long ownerId, RequestBookingStatus state) {
-    Optional<User> user = userRepository.findById(ownerId);
-    if (user.isEmpty()) {
-      throw new UserNotFoundException(ownerId.toString());
-    }
+    User user = userRepository.findById(ownerId)
+        .orElseThrow(() -> new UserNotFoundException(ownerId.toString()));
+
     List<Item> items = itemRepository.findItemsByOwnerId(ownerId);
     if (items.isEmpty()) {
       throw new ItemNotFoundException(ownerId.toString());
