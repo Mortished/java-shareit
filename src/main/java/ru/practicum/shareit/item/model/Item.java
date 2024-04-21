@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 @Data
@@ -36,5 +37,9 @@ public class Item {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
   private User owner;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "request_id")
+  private ItemRequest request;
 
 }

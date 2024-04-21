@@ -51,7 +51,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
   @Override
   public ItemRequestDTO get(Long userId, Long id) {
-    User user = userRepository.findById(userId)
+    userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException(userId.toString()));
     var result = itemRequestRepository.findById(id)
         .orElseThrow(() -> new ItemNotFoundException(id.toString()));

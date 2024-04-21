@@ -39,8 +39,8 @@ public class ItemRequestController {
 
   @GetMapping("/all")
   public List<ItemRequestDTO> getAllRequests(
-      @RequestParam(required = false) final Integer from,
-      @RequestParam(required = false) final Integer size
+      @RequestParam(required = false, defaultValue = "0") final Integer from,
+      @RequestParam(required = false, defaultValue = "10") final Integer size
   ) {
     return itemRequestService.getAll(PageRequest.of(from, size, Sort.by("created").descending()));
   }

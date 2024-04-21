@@ -7,6 +7,7 @@ import ru.practicum.shareit.item.dto.ItemBookingDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemFullDTO;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 public class ItemMapper {
@@ -48,4 +49,16 @@ public class ItemMapper {
         .owner(owner)
         .build();
   }
+
+  public static Item toItemWithRequest(ItemDTO dto, User owner, ItemRequest request) {
+    return Item.builder()
+        .id(dto.getId())
+        .name(dto.getName())
+        .description(dto.getDescription())
+        .available(dto.getAvailable())
+        .owner(owner)
+        .request(request)
+        .build();
+  }
+
 }

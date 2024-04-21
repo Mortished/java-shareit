@@ -5,6 +5,16 @@ CREATE TABLE IF NOT EXISTS users
     email varchar(320)
 );
 
+CREATE TABLE IF NOT EXISTS requests
+(
+    id           BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    description  varchar(255),
+    requestor_id bigint,
+    created      timestamp without time zone,
+    CONSTRAINT fk_requests_to_users FOREIGN KEY (requestor_id) REFERENCES users (id),
+    UNIQUE (id)
+);
+
 CREATE TABLE IF NOT EXISTS items
 (
     id           BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -12,7 +22,9 @@ CREATE TABLE IF NOT EXISTS items
     description  varchar(255),
     is_available boolean,
     user_id      BIGINT,
+    request_id   BIGINT,
     CONSTRAINT fk_items_to_users FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_items_to_requests FOREIGN KEY (request_id) REFERENCES requests (id),
     UNIQUE (id)
 );
 
@@ -26,16 +38,6 @@ CREATE TABLE IF NOT EXISTS bookings
     booker_id  bigint,
     CONSTRAINT fk_bookings_to_users FOREIGN KEY (booker_id) REFERENCES users (id),
     CONSTRAINT fk_bookings_to_items FOREIGN KEY (item_id) REFERENCES items (id),
-    UNIQUE (id)
-);
-
-CREATE TABLE IF NOT EXISTS requests
-(
-    id           BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    description  varchar(255),
-    requestor_id bigint,
-    created   timestamp without time zone,
-    CONSTRAINT fk_requests_to_users FOREIGN KEY (requestor_id) REFERENCES users (id),
     UNIQUE (id)
 );
 
