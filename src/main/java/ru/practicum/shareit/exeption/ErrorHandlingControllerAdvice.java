@@ -65,4 +65,10 @@ public class ErrorHandlingControllerAdvice {
     return new ApiError(ex.getMessage());
   }
 
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ExceptionHandler(ItemRequestNotFoundException.class)
+  public ApiError handleValidationExceptions(ItemRequestNotFoundException ex) {
+    return new ApiError(ex.getMessage());
+  }
+
 }
