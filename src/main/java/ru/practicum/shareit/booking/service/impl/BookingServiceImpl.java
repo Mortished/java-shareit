@@ -63,7 +63,7 @@ public class BookingServiceImpl implements BookingService {
   @Override
   @Transactional
   public BookingDTO updateBooking(Long ownerId, Long bookingId, Boolean isApproved) {
-    User user = userRepository.findById(ownerId)
+    userRepository.findById(ownerId)
         .orElseThrow(() -> new UserNotFoundException(ownerId.toString()));
 
     Booking booking = bookingRepository.findById(bookingId)
@@ -93,7 +93,7 @@ public class BookingServiceImpl implements BookingService {
 
   @Override
   public BookingDTO getBooking(Long userId, Long bookingId) {
-    User user = userRepository.findById(userId)
+    userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException(userId.toString()));
 
     Booking booking = bookingRepository.findById(bookingId)
@@ -110,7 +110,8 @@ public class BookingServiceImpl implements BookingService {
   }
 
   @Override
-  public List<BookingDTO> getBookingsByUser(Long bookerId, RequestBookingStatus state, Pageable pageable) {
+  public List<BookingDTO> getBookingsByUser(Long bookerId, RequestBookingStatus state,
+      Pageable pageable) {
     userRepository.findById(bookerId)
         .orElseThrow(() -> new UserNotFoundException(bookerId.toString()));
 
@@ -121,8 +122,9 @@ public class BookingServiceImpl implements BookingService {
   }
 
   @Override
-  public List<BookingDTO> getBookingStatusByOwner(Long ownerId, RequestBookingStatus state, Pageable pageable) {
-    User user = userRepository.findById(ownerId)
+  public List<BookingDTO> getBookingStatusByOwner(Long ownerId, RequestBookingStatus state,
+      Pageable pageable) {
+    userRepository.findById(ownerId)
         .orElseThrow(() -> new UserNotFoundException(ownerId.toString()));
 
     List<Item> items = itemRepository.findItemsByOwnerId(ownerId);
@@ -134,7 +136,8 @@ public class BookingServiceImpl implements BookingService {
         .collect(Collectors.toList());
   }
 
-  private List<Booking> findBookingsByOwnerIdAndStatus(Long ownerId, RequestBookingStatus state, Pageable pageable) {
+  private List<Booking> findBookingsByOwnerIdAndStatus(Long ownerId, RequestBookingStatus state,
+      Pageable pageable) {
     switch (state) {
       case ALL:
         return bookingRepository.findBookingsByItem_OwnerIdOrderByStartDesc(ownerId, pageable);
@@ -157,7 +160,8 @@ public class BookingServiceImpl implements BookingService {
     }
   }
 
-  private List<Booking> findBookingsByUserIdAndStatus(Long bookerId, RequestBookingStatus state, Pageable pageable) {
+  private List<Booking> findBookingsByUserIdAndStatus(Long bookerId, RequestBookingStatus state,
+      Pageable pageable) {
     switch (state) {
       case ALL:
         return bookingRepository.findBookingByBookerIdOrderByStartDesc(bookerId, pageable);

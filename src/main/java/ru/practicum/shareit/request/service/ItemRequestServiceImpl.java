@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exeption.ItemNotFoundException;
+import ru.practicum.shareit.exeption.ItemRequestNotFoundException;
 import ru.practicum.shareit.exeption.UserNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -59,7 +59,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException(userId.toString()));
     ItemRequest request = itemRequestRepository.findById(id)
-        .orElseThrow(() -> new ItemNotFoundException(id.toString()));
+        .orElseThrow(() -> new ItemRequestNotFoundException(id.toString()));
     List<ItemDTO> items = itemRepository.findAllByRequest_Id(request.getId()).stream()
         .map(ItemMapper::toItemDto)
         .collect(Collectors.toList());
