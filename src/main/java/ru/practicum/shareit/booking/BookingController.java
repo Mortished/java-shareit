@@ -58,7 +58,8 @@ public class BookingController {
       @RequestParam(required = false, defaultValue = "0") final Integer from,
       @RequestParam(required = false, defaultValue = "10") final Integer size
   ) {
-    return bookingService.getBookingsByUser(userId, state, PageRequest.of(from, size));
+    int page = from > 0 ? from / size : from;
+    return bookingService.getBookingsByUser(userId, state, PageRequest.of(page, size));
   }
 
   @GetMapping("/owner")

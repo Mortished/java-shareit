@@ -111,7 +111,7 @@ public class BookingServiceImpl implements BookingService {
 
   @Override
   public List<BookingDTO> getBookingsByUser(Long bookerId, RequestBookingStatus state, Pageable pageable) {
-    User user = userRepository.findById(bookerId)
+    userRepository.findById(bookerId)
         .orElseThrow(() -> new UserNotFoundException(bookerId.toString()));
 
     List<Booking> result = findBookingsByUserIdAndStatus(bookerId, state, pageable);
