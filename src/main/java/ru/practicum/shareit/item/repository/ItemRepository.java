@@ -11,6 +11,7 @@ import ru.practicum.shareit.item.model.Item;
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
   List<Item> findItemsByOwnerId(Long userId);
+
   List<Item> findItemsByOwnerId(Long userId, Pageable pageable);
 
   @Query("select i.available from Item i where i.id = ?1")
@@ -25,5 +26,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
   @Modifying(clearAutomatically = true)
   @Query("update Item i set i.available = :available where i.id = :id")
   void updateItemAvailableById(@Param("id") Long id, @Param("available") boolean available);
+
+  List<Item> findAllByRequest_Id(Long requestId);
 
 }
