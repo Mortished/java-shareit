@@ -11,7 +11,7 @@ public interface ItemRequestService {
 
   List<ItemRequestDTO> getSelfRequests(Long userId);
 
-  List<ItemRequestDTO> getAll(Pageable pageable);
+  List<ItemRequestDTO> getAll(Long userId, Pageable pageable);
 
   ItemRequestDTO get(Long userId, Long id);
 

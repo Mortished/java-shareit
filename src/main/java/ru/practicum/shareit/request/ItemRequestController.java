@@ -39,10 +39,11 @@ public class ItemRequestController {
 
   @GetMapping("/all")
   public List<ItemRequestDTO> getAllRequests(
+      @RequestHeader(REQUEST_HEADER_USER_ID) Long userId,
       @RequestParam(required = false, defaultValue = "0") final Integer from,
       @RequestParam(required = false, defaultValue = "10") final Integer size
   ) {
-    return itemRequestService.getAll(PageRequest.of(from, size, Sort.by("created").descending()));
+    return itemRequestService.getAll(userId, PageRequest.of(from, size, Sort.by("created").descending()));
   }
 
   @GetMapping("/{requestId}")

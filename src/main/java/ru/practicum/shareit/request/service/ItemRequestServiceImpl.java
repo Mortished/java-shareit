@@ -33,17 +33,17 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
   @Override
   public List<ItemRequestDTO> getSelfRequests(Long userId) {
-    User user = userRepository.findById(userId)
+    userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException(userId.toString()));
-    var result = itemRequestRepository.findAllWithoutRequestorId(userId);
+    var result = itemRequestRepository.findAllByRequestorId(userId);
     return result.stream()
         .map(ItemRequestMapper::toItemRequestDTO)
         .collect(Collectors.toList());
   }
 
   @Override
-  public List<ItemRequestDTO> getAll(Pageable pageable) {
-    List<ItemRequest> itemRequests = itemRequestRepository.findAll(pageable).getContent();
+  public List<ItemRequestDTO> getAll(Long userId, Pageable pageable) {
+    List<ItemRequest> itemRequests = itemRequestRepository.findAllWithoutRequestorId(userId, pageable);
     return itemRequests.stream().
         map(ItemRequestMapper::toItemRequestDTO)
         .collect(Collectors.toList());
