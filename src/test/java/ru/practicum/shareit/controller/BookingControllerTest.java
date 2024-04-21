@@ -113,7 +113,7 @@ public class BookingControllerTest {
 
     var booking = BookingRequestDTO.builder()
         .itemId(1L)
-        .start(LocalDateTime.now())
+        .start(LocalDateTime.now().plusDays(1))
         .end(LocalDateTime.now().minusDays(1))
         .build();
 
