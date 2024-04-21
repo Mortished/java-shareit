@@ -47,9 +47,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
   @Override
   public List<ItemRequestDTO> getAll(Long userId, Pageable pageable) {
-    List<ItemRequest> itemRequests = itemRequestRepository.findAllWithoutRequestorId(userId, pageable);
-    return itemRequests.stream().
-        map(it -> get(userId, it.getId()))
+    List<ItemRequest> itemRequests = itemRequestRepository.findAllWithoutRequestorId(userId,
+        pageable);
+    return itemRequests.stream()
+        .map(it -> get(userId, it.getId()))
         .collect(Collectors.toList());
   }
 
