@@ -1,12 +1,14 @@
 package ru.practicum.shareit.controller;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -90,7 +92,7 @@ public class ItemControllerTest {
   @Test
   void addUserNotFound() throws Exception {
     var item = getDefaultItem();
-    Mockito.when(itemService.add(Mockito.anyLong(), Mockito.any()))
+    when(itemService.add(anyLong(), any()))
         .thenThrow(UserNotFoundException.class);
 
     var response = mockMvc.perform(MockMvcRequestBuilders.post(URL)
@@ -104,7 +106,7 @@ public class ItemControllerTest {
   @Test
   void getByIdNotFound() throws Exception {
     var item = getDefaultItem();
-    Mockito.when(itemService.getById(Mockito.anyLong(), Mockito.anyLong()))
+    when(itemService.getById(anyLong(), anyLong()))
         .thenThrow(ItemNotFoundException.class);
 
     var response = mockMvc.perform(MockMvcRequestBuilders.get(URL.concat("/{itemId}"), 1L)
@@ -113,7 +115,21 @@ public class ItemControllerTest {
     response.andExpect(status().is4xxClientError());
   }
 
-  private Object getDefaultItem() {
+  @Test
+  void add() throws Exception {
+    var item = getDefaultItem();
+    when(itemService.add(anyLong(), any()))
+        .thenReturn(item);
+
+    var response = mockMvc.perform(MockMvcRequestBuilders.post(URL)
+        .header("X-Sharer-User-Id", 1L)
+        .header("Content-Type", "application/json")
+        .content(mapper.writeValueAsString(item)));
+
+    response.andExpect(status().isOk());
+  }
+
+  private ItemDTO getDefaultItem() {
     return ItemDTO.builder()
         .id(1L)
         .name("test")

@@ -1,6 +1,9 @@
 package ru.practicum.shareit.controller;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -50,7 +53,7 @@ public class ItemRequestControllerTest {
 
   @Test
   void createUserNotFound() throws Exception {
-    Mockito.when(itemRequestService.create(Mockito.anyLong(), Mockito.any()))
+    when(itemRequestService.create(anyLong(), Mockito.any()))
         .thenThrow(UserNotFoundException.class);
 
     var itemRequestDTO = getDefault();
@@ -64,13 +67,27 @@ public class ItemRequestControllerTest {
 
   @Test
   void getByIdRequestNotFound() throws Exception {
-    Mockito.when(itemRequestService.get(Mockito.anyLong(), Mockito.anyLong()))
+    when(itemRequestService.get(anyLong(), anyLong()))
         .thenThrow(ItemRequestNotFoundException.class);
 
     var response = mockMvc.perform(MockMvcRequestBuilders.get(URL.concat("/{requestId}"), 1L)
         .header("X-Sharer-User-Id", 1L));
 
     response.andExpect(status().is4xxClientError());
+  }
+
+  @Test
+  void create() throws Exception {
+    ItemRequestDTO itemRequestDTO = getDefault();
+    when(itemRequestService.create(anyLong(), any()))
+        .thenReturn(itemRequestDTO);
+
+    var response = mockMvc.perform(MockMvcRequestBuilders.post(URL)
+        .header("Content-Type", "application/json")
+        .header("X-Sharer-User-Id", 1L)
+        .content(mapper.writeValueAsString(itemRequestDTO)));
+
+    response.andExpect(status().isOk());
   }
 
   private ItemRequestDTO getDefault() {

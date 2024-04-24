@@ -1,6 +1,7 @@
 package ru.practicum.shareit.controller;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -85,7 +86,7 @@ public class UserControllerTest {
 
   @Test
   void createUserDublicateEmail() throws Exception {
-    Mockito.when(userService.save(Mockito.any()))
+    when(userService.save(Mockito.any()))
         .thenThrow(DuplicateUserEmailException.class);
 
     var user = getDefault();
@@ -100,7 +101,7 @@ public class UserControllerTest {
 
   @Test
   void updateUserNotFound() throws Exception {
-    Mockito.when(userService.update(Mockito.anyLong(), Mockito.any()))
+    when(userService.update(Mockito.anyLong(), Mockito.any()))
         .thenThrow(UserNotFoundException.class);
 
     var user = getDefault();
@@ -111,6 +112,21 @@ public class UserControllerTest {
         .content(mapper.writeValueAsString(user)));
 
     response.andExpect(status().is4xxClientError());
+  }
+
+  @Test
+  void saveUser() throws Exception {
+    var user = getDefault();
+
+    when(userService.save(Mockito.any()))
+        .thenReturn(user);
+
+    var response = mockMvc.perform(MockMvcRequestBuilders.post(URL)
+        .header("Content-Type", "application/json")
+        .header("X-Sharer-User-Id", 1L)
+        .content(mapper.writeValueAsString(user)));
+
+    response.andExpect(status().isOk());
   }
 
   private UserDTO getDefault() {
