@@ -18,6 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.exeption.ItemNotFoundException;
 import ru.practicum.shareit.exeption.UserNotFoundException;
 import ru.practicum.shareit.exeption.ValidateException;
 import ru.practicum.shareit.item.dto.CommentRequestDTO;
@@ -58,7 +59,7 @@ public class ItemServiceTest {
     ItemDTO itemDTO = getDefaultItemDTO();
 
     when(userRepository.findById(anyLong()))
-        .thenThrow(UserNotFoundException.class);
+        .thenReturn(Optional.empty());
 
     assertThrows(UserNotFoundException.class, () -> itemService.add(1L, itemDTO));
     verify(userRepository, times(1)).findById(any());
@@ -144,6 +145,16 @@ public class ItemServiceTest {
 
     verify(itemRepository, times(1)).getById(any());
     verify(itemRepository, times(1)).save(any());
+  }
+
+  @Test
+  void getByIdNotFoundException() {
+    when(itemRepository.findById(anyLong()))
+        .thenReturn(Optional.empty());
+
+    assertThrows(ItemNotFoundException.class, () -> itemService.getById(1L, 1L));
+    verify(itemRepository, times(1)).findById(anyLong());
+
   }
 
   @Test
@@ -310,6 +321,11 @@ public class ItemServiceTest {
     assertThat(result.getId()).isEqualTo(1L);
     assertThat(result.getText()).isEqualTo("test");
     assertThat(result.getAuthorName()).isEqualTo("name");
+
+    verify(itemRepository, times(1)).findById(anyLong());
+    verify(userRepository, times(1)).findById(anyLong());
+    verify(commentRepository, times(1)).save(any());
+    verify(bookingRepository, times(1)).existsBookingByBookerIdAndStatus(anyLong(), any());
   }
 
 

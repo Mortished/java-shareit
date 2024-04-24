@@ -59,7 +59,7 @@ public class UserServiceTest {
     UserDTO user = getDefaultUserDTO();
 
     when(userRepository.findById(anyLong()))
-        .thenThrow(UserNotFoundException.class);
+        .thenReturn(Optional.empty());
 
     assertThrows(UserNotFoundException.class, () -> userService.update(1L, user));
     verify(userRepository, times(1)).findById(anyLong());
@@ -126,10 +126,8 @@ public class UserServiceTest {
 
   @Test
   void getByIdNotFoundException() {
-    UserDTO user = getDefaultUserDTO();
-
     when(userRepository.findById(anyLong()))
-        .thenThrow(UserNotFoundException.class);
+        .thenReturn(Optional.empty());
 
     assertThrows(UserNotFoundException.class, () -> userService.getById(1L));
     verify(userRepository, times(1)).findById(anyLong());

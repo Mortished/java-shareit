@@ -76,7 +76,7 @@ public class ItemRequestServiceTest {
     when(userRepository.findById(anyLong()))
         .thenReturn(Optional.of(getDefaultUser()));
     when(itemRequestRepository.findById(anyLong()))
-        .thenThrow(ItemRequestNotFoundException.class);
+        .thenReturn(Optional.empty());
 
     assertThrows(ItemRequestNotFoundException.class, () -> itemRequestService.get(1L, 1L));
 
