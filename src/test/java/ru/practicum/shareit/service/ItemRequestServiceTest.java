@@ -110,14 +110,8 @@ public class ItemRequestServiceTest {
   public void getAll() {
     ItemRequest itemRequest = getDefaultItemRequest();
 
-    when(userRepository.findById(anyLong()))
-        .thenReturn(Optional.of(getDefaultUser()));
-    when(itemRequestRepository.findById(anyLong()))
-        .thenReturn(Optional.of(itemRequest));
     when(itemRequestRepository.findAllWithoutRequestorId(anyLong(), any()))
         .thenReturn(List.of(itemRequest));
-    when(itemRepository.findAllByRequest_Id(anyLong()))
-        .thenReturn(Collections.emptyList());
 
     var result = itemRequestService.getAll(1L, PageRequest.ofSize(1));
     assertThat(result).isNotNull();
@@ -127,10 +121,7 @@ public class ItemRequestServiceTest {
     assertThat(result.get(0).getCreated()).isEqualTo(itemRequest.getCreated());
     assertThat(result.get(0).getItems()).isEmpty();
 
-    verify(userRepository, times(1)).findById(any());
-    verify(itemRequestRepository, times(1)).findById(any());
     verify(itemRequestRepository, times(1)).findAllWithoutRequestorId(anyLong(), any());
-    verify(itemRepository, times(1)).findAllByRequest_Id(any());
   }
 
 
@@ -140,12 +131,8 @@ public class ItemRequestServiceTest {
 
     when(userRepository.findById(anyLong()))
         .thenReturn(Optional.of(getDefaultUser()));
-    when(itemRequestRepository.findById(anyLong()))
-        .thenReturn(Optional.of(itemRequest));
     when(itemRequestRepository.findAllByRequestorId(anyLong()))
         .thenReturn(List.of(itemRequest));
-    when(itemRepository.findAllByRequest_Id(anyLong()))
-        .thenReturn(Collections.emptyList());
 
     var result = itemRequestService.getSelfRequests(1L);
     assertThat(result).isNotNull();
@@ -155,10 +142,8 @@ public class ItemRequestServiceTest {
     assertThat(result.get(0).getCreated()).isEqualTo(itemRequest.getCreated());
     assertThat(result.get(0).getItems()).isEmpty();
 
-    verify(userRepository, times(2)).findById(any());
-    verify(itemRequestRepository, times(1)).findById(any());
+    verify(userRepository, times(1)).findById(any());
     verify(itemRequestRepository, times(1)).findAllByRequestorId(anyLong());
-    verify(itemRepository, times(1)).findAllByRequest_Id(any());
   }
 
   private RequestDTO getDefaultRequestDTO() {

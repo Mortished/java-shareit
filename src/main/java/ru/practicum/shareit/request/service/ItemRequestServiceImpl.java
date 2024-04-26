@@ -7,9 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exeption.ItemRequestNotFoundException;
 import ru.practicum.shareit.exeption.UserNotFoundException;
-import ru.practicum.shareit.item.dto.ItemDTO;
-import ru.practicum.shareit.item.mapper.ItemMapper;
-import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDTO;
 import ru.practicum.shareit.request.dto.RequestDTO;
@@ -24,7 +21,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
   private final ItemRequestRepository itemRequestRepository;
   private final UserRepository userRepository;
-  private final ItemRepository itemRepository;
 
   @Override
   public ItemRequestDTO create(Long userId, RequestDTO requestDTO) {
@@ -41,7 +37,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         .orElseThrow(() -> new UserNotFoundException(userId.toString()));
     var result = itemRequestRepository.findAllByRequestorId(userId);
     return result.stream()
-        .map(it -> get(userId, it.getId()))
+        .map(ItemRequestMapper::toItemRequestDTO)
         .collect(Collectors.toList());
   }
 
@@ -50,7 +46,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     List<ItemRequest> itemRequests = itemRequestRepository.findAllWithoutRequestorId(userId,
         pageable);
     return itemRequests.stream()
-        .map(it -> get(userId, it.getId()))
+        .map(ItemRequestMapper::toItemRequestDTO)
         .collect(Collectors.toList());
   }
 
@@ -60,10 +56,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         .orElseThrow(() -> new UserNotFoundException(userId.toString()));
     ItemRequest request = itemRequestRepository.findById(id)
         .orElseThrow(() -> new ItemRequestNotFoundException(id.toString()));
-    List<ItemDTO> items = itemRepository.findAllByRequest_Id(request.getId()).stream()
-        .map(ItemMapper::toItemDto)
-        .collect(Collectors.toList());
-    return ItemRequestMapper.toItemRequestDTO(request, items);
+    return ItemRequestMapper.toItemRequestDTO(request);
   }
 
 }
