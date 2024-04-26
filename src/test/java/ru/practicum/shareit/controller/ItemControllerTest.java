@@ -8,6 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -20,6 +22,7 @@ import ru.practicum.shareit.exeption.ItemNotFoundException;
 import ru.practicum.shareit.exeption.UserNotFoundException;
 import ru.practicum.shareit.item.ItemController;
 import ru.practicum.shareit.item.dto.ItemDTO;
+import ru.practicum.shareit.item.dto.ItemFullDTO;
 import ru.practicum.shareit.item.service.ItemService;
 
 @WebMvcTest(controllers = ItemController.class)
@@ -125,6 +128,59 @@ public class ItemControllerTest {
         .header("X-Sharer-User-Id", 1L)
         .header("Content-Type", "application/json")
         .content(mapper.writeValueAsString(item)));
+
+    response.andExpect(status().isOk());
+  }
+
+  @Test
+  void getById() throws Exception {
+    var item = ItemFullDTO.builder()
+        .id(1L)
+        .name("test")
+        .description("test")
+        .available(Boolean.TRUE)
+        .comments(Collections.emptyList())
+        .lastBooking(null)
+        .nextBooking(null)
+        .build();
+    when(itemService.getById(anyLong(), anyLong()))
+        .thenReturn(item);
+
+    var response = mockMvc.perform(MockMvcRequestBuilders.get(URL.concat("/{itemId}"), 1L)
+        .header("X-Sharer-User-Id", 1L));
+
+    response.andExpect(status().isOk());
+  }
+
+  @Test
+  void getUsersItems() throws Exception {
+    var item = ItemFullDTO.builder()
+        .id(1L)
+        .name("test")
+        .description("test")
+        .available(Boolean.TRUE)
+        .comments(Collections.emptyList())
+        .lastBooking(null)
+        .nextBooking(null)
+        .build();
+    when(itemService.getUserItems(anyLong(), any()))
+        .thenReturn(List.of(item));
+
+    var response = mockMvc.perform(MockMvcRequestBuilders.get(URL)
+        .header("X-Sharer-User-Id", 1L));
+
+    response.andExpect(status().isOk());
+  }
+
+  @Test
+  void search() throws Exception {
+    var item = getDefaultItem();
+    when(itemService.search(any(), any()))
+        .thenReturn(List.of(item));
+
+    var response = mockMvc.perform(MockMvcRequestBuilders.get(URL.concat("/search"))
+        .param("text", "test")
+        .header("X-Sharer-User-Id", 1L));
 
     response.andExpect(status().isOk());
   }
