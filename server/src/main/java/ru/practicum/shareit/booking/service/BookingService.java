@@ -16,6 +16,7 @@ public interface BookingService {
 
   List<BookingDTO> getBookingsByUser(Long bookerId, RequestBookingStatus state, Pageable pageable);
 
-  List<BookingDTO> getBookingStatusByOwner(Long ownerId, RequestBookingStatus state, Pageable pageable);
+  List<BookingDTO> getBookingStatusByOwner(Long ownerId, RequestBookingStatus state,
+      Pageable pageable);
 
 }

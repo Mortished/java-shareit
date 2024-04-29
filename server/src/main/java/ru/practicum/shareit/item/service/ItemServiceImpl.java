@@ -49,7 +49,8 @@ public class ItemServiceImpl implements ItemService {
     if (item.getRequestId() != null) {
       ItemRequest itemRequest = requestRepository.findById(item.getRequestId())
           .orElseThrow(() -> new ItemRequestNotFoundException(item.getRequestId().toString()));
-      return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItemWithRequest(item, user, itemRequest)));
+      return ItemMapper.toItemDto(
+          itemRepository.save(ItemMapper.toItemWithRequest(item, user, itemRequest)));
     }
 
     return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItem(item, user)));
