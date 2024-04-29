@@ -7,11 +7,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exeption.ItemNotFoundException;
+import ru.practicum.shareit.exeption.ItemRequestNotFoundException;
 import ru.practicum.shareit.exeption.UserNotFoundException;
 import ru.practicum.shareit.exeption.ValidateException;
 import ru.practicum.shareit.item.dto.CommentDTO;
@@ -24,6 +26,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.ItemRequestRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
@@ -35,11 +39,18 @@ public class ItemServiceImpl implements ItemService {
   private final UserRepository userRepository;
   private final CommentRepository commentRepository;
   private final BookingRepository bookingRepository;
+  private final ItemRequestRepository requestRepository;
 
   @Override
   public ItemDTO add(Long userId, ItemDTO item) {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException(userId.toString()));
+
+    if (item.getRequestId() != null) {
+      ItemRequest itemRequest = requestRepository.findById(item.getRequestId())
+          .orElseThrow(() -> new ItemRequestNotFoundException(item.getRequestId().toString()));
+      return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItemWithRequest(item, user, itemRequest)));
+    }
 
     return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItem(item, user)));
   }
@@ -89,8 +100,8 @@ public class ItemServiceImpl implements ItemService {
   }
 
   @Override
-  public List<ItemFullDTO> getUserItems(Long userId) {
-    List<Item> items = itemRepository.findItemsByOwnerId(userId);
+  public List<ItemFullDTO> getUserItems(Long userId, Pageable pageable) {
+    List<Item> items = itemRepository.findItemsByOwnerId(userId, pageable);
     return items.stream()
         .map(item -> getById(userId, item.getId()))
         .sorted(Comparator.comparing(ItemFullDTO::getId))
@@ -98,11 +109,11 @@ public class ItemServiceImpl implements ItemService {
   }
 
   @Override
-  public List<ItemDTO> search(String text) {
+  public List<ItemDTO> search(String text, Pageable pageable) {
     if (text.isEmpty()) {
       return Collections.emptyList();
     }
-    return itemRepository.search(text).stream()
+    return itemRepository.search(text, pageable).stream()
         .distinct()
         .map(ItemMapper::toItemDto)
         .collect(Collectors.toList());

@@ -2,6 +2,7 @@ package ru.practicum.shareit.exeption;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,7 +19,8 @@ public class ErrorHandlingControllerAdvice {
     List<ApiError> errorList = new ArrayList<>();
     ex.getBindingResult().getAllErrors().forEach(error -> {
       String errorMessage = error.getDefaultMessage();
-      errorList.add(new ApiError(errorMessage));
+      errorList.add(new ApiError(
+          Objects.requireNonNull(ex.getFieldError()).getField() + ": " + errorMessage));
     });
     return errorList;
   }
@@ -62,6 +64,12 @@ public class ErrorHandlingControllerAdvice {
   @ResponseStatus(HttpStatus.NOT_FOUND)
   @ExceptionHandler(BookingNotFoundException.class)
   public ApiError handleValidationExceptions(BookingNotFoundException ex) {
+    return new ApiError(ex.getMessage());
+  }
+
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ExceptionHandler(ItemRequestNotFoundException.class)
+  public ApiError handleValidationExceptions(ItemRequestNotFoundException ex) {
     return new ApiError(ex.getMessage());
   }
 

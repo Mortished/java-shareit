@@ -1,6 +1,7 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.request.model;
 
-import javax.persistence.Column;
+import java.time.LocalDateTime;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -8,12 +9,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 @Data
@@ -21,25 +23,23 @@ import ru.practicum.shareit.user.model.User;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "items")
-public class Item {
+@Table(name = "requests")
+public class ItemRequest {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private String name;
   private String description;
 
-  @Column(name = "is_available")
-  private boolean available;
-
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false)
-  private User owner;
+  @JoinColumn(name = "requestor_id", nullable = false)
+  private User requestor;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  private final LocalDateTime created = LocalDateTime.now();
+
+  @OneToMany(fetch = FetchType.LAZY)
   @JoinColumn(name = "request_id")
-  private ItemRequest request;
+  private List<Item> items;
 
 }

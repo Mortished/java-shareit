@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,13 +50,21 @@ public class ItemController {
   }
 
   @GetMapping
-  public List<ItemFullDTO> getUserItems(@RequestHeader(REQUEST_HEADER_USER_ID) long userId) {
-    return itemService.getUserItems(userId);
+  public List<ItemFullDTO> getUserItems(
+      @RequestHeader(REQUEST_HEADER_USER_ID) long userId,
+      @RequestParam(required = false, defaultValue = "0") final Integer from,
+      @RequestParam(required = false, defaultValue = "10") final Integer size
+  ) {
+    return itemService.getUserItems(userId, PageRequest.of(from, size));
   }
 
   @GetMapping("/search")
-  public List<ItemDTO> search(@RequestParam String text) {
-    return itemService.search(text);
+  public List<ItemDTO> search(
+      @RequestParam String text,
+      @RequestParam(required = false, defaultValue = "0") final Integer from,
+      @RequestParam(required = false, defaultValue = "10") final Integer size
+  ) {
+    return itemService.search(text, PageRequest.of(from, size));
   }
 
   @PostMapping("/{itemId}/comment")

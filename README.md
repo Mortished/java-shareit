@@ -35,3 +35,27 @@
 - `POST /items/{itemId}/comment`
 - `GET /items/{itemId}`
 - `GET /items`
+
+## Sprint-15
+
+### 1. Рерализован ItemRequestController с эндпоинтами:
+- `POST /requests`
+- `GET /requests`
+- `GET /requests/all?from={from}&size={size}`
+- `GET /requests/{requestId}`
+
+### 2. Добавил опцию ответа на запрос:
+- `POST /items`
+
+### 3. Добавлил пагинацию к существующим эндпоинтам:
+- `GET /items`
+- `GET /items/search`
+- `GET /bookings`
+- `GET /bookings/owner`
+
+### 4. Тестовое покрытие сервиса
+
+
+
+
+
