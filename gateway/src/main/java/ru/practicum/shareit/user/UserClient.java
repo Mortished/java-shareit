@@ -26,7 +26,7 @@ public class UserClient extends BaseClient {
   }
 
   public ResponseEntity<Object> getById(Long id) {
-    return get("/" + id, id);
+    return get("/" + id);
   }
 
   public ResponseEntity<Object> getAll() {
@@ -34,10 +34,10 @@ public class UserClient extends BaseClient {
   }
 
   public ResponseEntity<Object> update(Long id, UserDTO user) {
-    return patch("/" + id, id, user);
+    return patch("/" + id, user);
   }
 
   public void deleteById(Long id) {
-    delete("/" + id, id);
+    delete("/" + id);
   }
 }
