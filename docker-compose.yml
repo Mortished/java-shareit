@@ -1,8 +1,22 @@
 version: '3.8'
 services:
+  server:
+    build: ./server
+    restart: on-failure
+    container_name: share-server
+    ports:
+      - "9090:9090"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/share
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop
+      - SERVER_PORT=9090
+
   gateway:
-    build: .
-    image: amazoncorretto:11
+    build: ./gateway
     container_name: share-gateway
     ports:
       - "8080:8080"
@@ -10,22 +24,7 @@ services:
       - server
     environment:
       - SHAREIT_SERVER_URL=http://server:9090
-
-  server:
-    build: .
-    image: amazoncorretto:11
-    container_name: share-server
-    ports:
-      - "9090:9090"
-    depends_on:
-      - db
-    environment:
-      - DB_NAME=share
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=root
-      - DB_HOST=db
-      - DB_PORT=5432
-      #- SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit
+      - SERVER_PORT=8080
 
   db:
     image: postgres:13.7-alpine
