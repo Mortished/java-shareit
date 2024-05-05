@@ -17,13 +17,27 @@ public class UserClient extends BaseClient {
 
   @Autowired
   public UserClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
-    super(builder
-        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
-        .requestFactory(HttpComponentsClientHttpRequestFactory::new)
-        .build());
+    super(builder.uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
+        .requestFactory(HttpComponentsClientHttpRequestFactory::new).build());
   }
 
   public ResponseEntity<Object> save(UserDTO user) {
     return post("", user);
+  }
+
+  public ResponseEntity<Object> getById(Long id) {
+    return get("/" + id);
+  }
+
+  public ResponseEntity<Object> getAll() {
+    return get("");
+  }
+
+  public ResponseEntity<Object> update(Long id, UserDTO user) {
+    return patch("/" + id, user);
+  }
+
+  public void deleteById(Long id) {
+    delete("/" + id, id);
   }
 }
