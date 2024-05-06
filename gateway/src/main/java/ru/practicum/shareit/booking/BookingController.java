@@ -38,10 +38,9 @@ public class BookingController {
   ) {
     BookingState state = BookingState.from(stateParam)
         .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
-    int page = from > 0 ? from / size : from;
-    log.info("Get booking with state {}, userId={}, from={}, size={}", stateParam, userId, page,
+    log.info("Get booking with state {}, userId={}, from={}, size={}", stateParam, userId, from,
         size);
-    return bookingClient.getBookings(userId, state, page, size);
+    return bookingClient.getBookings(userId, state, from, size);
   }
 
   @GetMapping("/owner")
